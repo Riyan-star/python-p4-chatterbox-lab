@@ -88,10 +88,16 @@ class TestApp:
     def test_updates_body_of_message_in_database(self):
         '''updates the body of a message in the database.'''
         with app.app_context():
+            # Setup: Create a message to update
+            hello_from_liza = Message(
+                body="Hello 👋",
+                username="Liza"
+            )
+            db.session.add(hello_from_liza)
+            db.session.commit()
 
-            m = Message.query.first()
-            id = m.id
-            body = m.body
+            id = hello_from_liza.id
+            body = hello_from_liza.body
 
             app.test_client().patch(
                 f'/messages/{id}',
@@ -107,13 +113,23 @@ class TestApp:
             db.session.add(g)
             db.session.commit()
 
+            # Cleanup
+            db.session.delete(g)
+            db.session.commit()
+
     def test_returns_data_for_updated_message_as_json(self):
         '''returns data for the updated message as JSON.'''
         with app.app_context():
+            # Setup: Create a message to update
+            hello_from_liza = Message(
+                body="Hello 👋",
+                username="Liza"
+            )
+            db.session.add(hello_from_liza)
+            db.session.commit()
 
-            m = Message.query.first()
-            id = m.id
-            body = m.body
+            id = hello_from_liza.id
+            body = hello_from_liza.body
 
             response = app.test_client().patch(
                 f'/messages/{id}',
@@ -128,6 +144,10 @@ class TestApp:
             g = Message.query.filter_by(body="Goodbye 👋").first()
             g.body = body
             db.session.add(g)
+            db.session.commit()
+
+            # Cleanup
+            db.session.delete(g)
             db.session.commit()
 
     def test_deletes_message_from_database(self):
